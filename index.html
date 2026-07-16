@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pemesanan Tiket, Hotel dan Travel</title>
+<title>Pemesanan Tiket, Hotel dan Mobil</title>
+<link rel="icon" type="image/png" href="Travel.png">
 <style>
   :root{
     --primary:#1e5f8c;
@@ -320,7 +321,7 @@
 
 <header>
   <div>
-    <h1>Sistem Pemesanan Travel</h1>
+    <h1>Pemesanan Tiket, Hotel dan Mobil</h1>
     <div class="subtitle">Head Office &amp; Site</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -428,8 +429,8 @@
           </select>
         </div>
         <div class="field">
-          <label>Prioritas</label>
-          <select id="f_prioritas">
+          <label>Prioritas *</label>
+          <select id="f_prioritas" required>
             <option value="Normal">Normal</option>
             <option value="Urgent">Urgent</option>
           </select>
@@ -438,44 +439,44 @@
         <!-- TIKET FIELDS (mengikuti Form Permohonan Tiket Pesawat) -->
         <div class="jenis-fields" id="fields_tiket">
           <div class="field">
-            <label>Nama Penerbangan</label>
-            <input type="text" id="t_namapenerbangan" placeholder="Contoh: Garuda Indonesia">
+            <label>Nama Penerbangan *</label>
+            <input type="text" id="t_namapenerbangan" placeholder="Contoh: Garuda Indonesia" required>
           </div>
           <div class="field">
-            <label>Dari</label>
-            <select id="t_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            <label>Dari *</label>
+            <select id="t_dari" class="loc-dropdown" required><option value="">-- Pilih Lokasi --</option></select>
           </div>
           <div class="field">
-            <label>Tujuan</label>
-            <select id="t_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            <label>Tujuan *</label>
+            <select id="t_tujuan" class="loc-dropdown" required><option value="">-- Pilih Lokasi --</option></select>
           </div>
           <div class="field">
-            <label>Tanggal Penerbangan</label>
-            <input type="date" id="t_tanggal">
+            <label>Tanggal Penerbangan *</label>
+            <input type="date" id="t_tanggal" required>
           </div>
           <div class="field full">
-            <label>Keperluan</label>
-            <textarea id="t_keperluan" placeholder="Keperluan perjalanan dinas"></textarea>
+            <label>Keperluan *</label>
+            <textarea id="t_keperluan" placeholder="Keperluan perjalanan dinas" required></textarea>
           </div>
         </div>
 
         <!-- HOTEL FIELDS (mengikuti Form Permohonan Reservasi Hotel) -->
         <div class="jenis-fields" id="fields_hotel">
           <div class="field">
-            <label>Lokasi Pemesanan</label>
-            <select id="h_lokasi" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            <label>Lokasi Pemesanan *</label>
+            <select id="h_lokasi" class="loc-dropdown" required><option value="">-- Pilih Lokasi --</option></select>
           </div>
           <div class="field">
-            <label>Nama Hotel</label>
-            <input type="text" id="h_namahotel" placeholder="Contoh: Hotel Aston Balikpapan">
+            <label>Nama Hotel *</label>
+            <input type="text" id="h_namahotel" placeholder="Contoh: Hotel Aston Balikpapan" required>
           </div>
           <div class="field">
-            <label>Tanggal Check-in</label>
-            <input type="date" id="h_checkin">
+            <label>Tanggal Check-in *</label>
+            <input type="date" id="h_checkin" required>
           </div>
           <div class="field">
-            <label>Tanggal Check-out</label>
-            <input type="date" id="h_checkout">
+            <label>Tanggal Check-out *</label>
+            <input type="date" id="h_checkout" required>
           </div>
           <div class="field full">
             <label>Pilihan Tipe Kamar</label>
@@ -489,28 +490,28 @@
         <!-- MOBIL FIELDS -->
         <div class="jenis-fields" id="fields_mobil">
           <div class="field">
-            <label>Dari</label>
-            <select id="m_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            <label>Dari *</label>
+            <select id="m_dari" class="loc-dropdown" required><option value="">-- Pilih Lokasi --</option></select>
           </div>
           <div class="field">
-            <label>Tujuan</label>
-            <select id="m_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            <label>Tujuan *</label>
+            <select id="m_tujuan" class="loc-dropdown" required><option value="">-- Pilih Lokasi --</option></select>
           </div>
           <div class="field">
-            <label>Tanggal</label>
-            <input type="date" id="m_tanggal">
+            <label>Tanggal *</label>
+            <input type="date" id="m_tanggal" required>
           </div>
           <div class="field">
-            <label>Jam Penjemputan</label>
-            <input type="time" id="m_jam">
+            <label>Jam Penjemputan *</label>
+            <input type="time" id="m_jam" required>
           </div>
           <div class="field">
-            <label>Jenis Mobil</label>
-            <select id="m_jenismobil" class="vehicle-dropdown"><option value="">-- Pilih Kendaraan --</option></select>
+            <label>Jenis Mobil *</label>
+            <select id="m_jenismobil" class="vehicle-dropdown" required><option value="">-- Pilih Kendaraan --</option></select>
           </div>
           <div class="field full">
-            <label>Keperluan</label>
-            <textarea id="m_keperluan" placeholder="Keperluan perjalanan"></textarea>
+            <label>Keperluan *</label>
+            <textarea id="m_keperluan" placeholder="Keperluan perjalanan" required></textarea>
           </div>
         </div>
 
