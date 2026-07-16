@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Pemesanan Travel - HO & Site</title>
+<style>
+  :root{
+    --primary:#1e5f8c;
+    --primary-dark:#154564;
+    --accent:#f5a623;
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --border:#e1e5ea;
+    --text:#2b2f36;
+    --muted:#7a8290;
+    --success:#2e9e5b;
+    --warn:#e0a300;
+    --danger:#d64545;
+    --info:#3b7dd8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    padding:18px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  header h1{
+    margin:0;
+    font-size:20px;
+    font-weight:600;
+  }
+  header .subtitle{
+    font-size:12px;
+    opacity:.85;
+    margin-top:2px;
+  }
+  .role-switch{
+    display:flex;
+    background:rgba(255,255,255,.15);
+    border-radius:8px;
+    padding:4px;
+    gap:4px;
+  }
+  .role-switch button{
+    border:none;
+    background:transparent;
+    color:#fff;
+    padding:8px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+  }
+  .role-switch button.active{
+    background:#fff;
+    color:var(--primary-dark);
+  }
+  main{
+    max-width:1200px;
+    margin:0 auto;
+    padding:20px;
+  }
+  .view{display:none;}
+  .view.active{display:block;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    margin:0 0 16px 0;
+    font-size:16px;
+    color:var(--primary-dark);
+    border-bottom:2px solid var(--border);
+    padding-bottom:10px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .field label{
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+  }
+  .field input, .field select, .field textarea{
+    padding:9px 10px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    font-size:13px;
+    font-family:inherit;
+    background:#fff;
+  }
+  .field textarea{resize:vertical;min-height:44px;}
+  .field.full{grid-column:1/-1;}
+  .radio-group{
+    display:flex;
+    gap:16px;
+    padding-top:6px;
+  }
+  .radio-group label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:500;
+    color:var(--text);
+  }
+  .jenis-fields{
+    display:none;
+    grid-column:1/-1;
+    padding-top:6px;
+    border-top:1px dashed var(--border);
+    margin-top:6px;
+  }
+  .jenis-fields.show{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+  .jenis-badge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:20px;
+    color:#fff;
+  }
+  .jenis-tiket{background:var(--info);}
+  .jenis-hotel{background:#7a5cd6;}
+  .jenis-mobil{background:#3fa55f;}
+  .btn{
+    border:none;
+    padding:10px 20px;
+    border-radius:6px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-sm{padding:5px 10px;font-size:12px;border-radius:5px;}
+  .btn-success{background:var(--success);color:#fff;}
+  .btn-warn{background:var(--warn);color:#fff;}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-info{background:var(--info);color:#fff;}
+  .btn-muted{background:#eef0f2;color:var(--text);}
+  .actions-row{margin-top:16px;display:flex;justify-content:flex-end;gap:10px;}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  th, td{
+    text-align:left;
+    padding:10px 8px;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  th{
+    background:#f0f3f6;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  tr:hover td{background:#fafbfc;}
+  .status-pill{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:20px;
+    color:#fff;
+    white-space:nowrap;
+  }
+  .status-Menunggu{background:var(--warn);}
+  .status-Diproses{background:var(--info);}
+  .status-Selesai{background:var(--success);}
+  .status-Ditolak{background:var(--danger);}
+  .filters{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .filters select, .filters input{
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    font-size:13px;
+  }
+  .stat-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:12px;
+    margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    text-align:center;
+  }
+  .stat-card .num{font-size:24px;font-weight:700;color:var(--primary-dark);}
+  .stat-card .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:2px;}
+  .empty-state{
+    text-align:center;
+    padding:30px;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .detail-line{font-size:12px;color:var(--muted);margin-top:2px;}
+  .detail-line b{color:var(--text);}
+  select.status-select{
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:5px 6px;
+    font-size:12px;
+  }
+  .action-cell{display:flex;flex-direction:column;gap:6px;min-width:110px;}
+  .toast{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:var(--success);
+    color:#fff;
+    padding:12px 18px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:0 4px 14px rgba(0,0,0,.15);
+    opacity:0;
+    transform:translateY(10px);
+    transition:.25s;
+    pointer-events:none;
+    z-index:999;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  @media(max-width:600px){
+    header{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Sistem Pemesanan Travel</h1>
+    <div class="subtitle">Head Office &amp; Site</div>
+  </div>
+  <div class="role-switch">
+    <button id="btnSiteRole" class="active" onclick="switchRole('site')">Site (Pemesan)</button>
+    <button id="btnHORole" onclick="switchRole('ho')">Travel HO</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= SITE VIEW ================= -->
+  <div id="viewSite" class="view active">
+    <div class="card">
+      <h2>Form Permintaan Pemesanan</h2>
+      <form id="orderForm" onsubmit="submitOrder(event)">
+        <div class="grid">
+          <div class="field">
+            <label>Nama Lengkap Pemesan *</label>
+            <input type="text" id="f_pemohon" placeholder="Nama lengkap pemohon" required>
+          </div>
+          <div class="field">
+            <label>Departemen / Divisi (Site) *</label>
+            <input type="text" id="f_site" placeholder="Contoh: Site Balikpapan" required>
+          </div>
+          <div class="field">
+            <label>Jenis Pemesanan *</label>
+            <select id="f_jenis" onchange="toggleJenisFields()" required>
+              <option value="">-- Pilih Jenis --</option>
+              <option value="tiket">Tiket Pesawat</option>
+              <option value="hotel">Hotel</option>
+              <option value="mobil">Travel Mobil</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Prioritas</label>
+            <select id="f_prioritas">
+              <option value="Normal">Normal</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
+
+          <!-- TIKET FIELDS (mengikuti Form Permohonan Tiket Pesawat) -->
+          <div class="jenis-fields" id="fields_tiket">
+            <div class="field">
+              <label>Nama Penerbangan</label>
+              <input type="text" id="t_namapenerbangan" placeholder="Contoh: Garuda Indonesia">
+            </div>
+            <div class="field">
+              <label>Dari</label>
+              <select id="t_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            </div>
+            <div class="field">
+              <label>Tujuan</label>
+              <select id="t_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            </div>
+            <div class="field">
+              <label>Tanggal Penerbangan</label>
+              <input type="date" id="t_tanggal">
+            </div>
+            <div class="field full">
+              <label>Keperluan</label>
+              <textarea id="t_keperluan" placeholder="Keperluan perjalanan dinas"></textarea>
+            </div>
+          </div>
+
+          <!-- HOTEL FIELDS (mengikuti Form Permohonan Reservasi Hotel) -->
+          <div class="jenis-fields" id="fields_hotel">
+            <div class="field">
+              <label>Lokasi Pemesanan</label>
+              <select id="h_lokasi" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            </div>
+            <div class="field">
+              <label>Nama Hotel</label>
+              <input type="text" id="h_namahotel" placeholder="Contoh: Hotel Aston Balikpapan">
+            </div>
+            <div class="field">
+              <label>Tanggal Check-in</label>
+              <input type="date" id="h_checkin">
+            </div>
+            <div class="field">
+              <label>Tanggal Check-out</label>
+              <input type="date" id="h_checkout">
+            </div>
+            <div class="field full">
+              <label>Pilihan Tipe Kamar</label>
+              <div class="radio-group">
+                <label><input type="radio" name="h_tipe" value="Standard Room" checked> Standard Room</label>
+                <label><input type="radio" name="h_tipe" value="Deluxe Room"> Deluxe Room</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- MOBIL FIELDS -->
+          <div class="jenis-fields" id="fields_mobil">
+            <div class="field">
+              <label>Dari</label>
+              <select id="m_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            </div>
+            <div class="field">
+              <label>Tujuan</label>
+              <select id="m_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+            </div>
+            <div class="field">
+              <label>Tanggal</label>
+              <input type="date" id="m_tanggal">
+            </div>
+            <div class="field">
+              <label>Jam Penjemputan</label>
+              <input type="time" id="m_jam">
+            </div>
+            <div class="field">
+              <label>Jenis Mobil</label>
+              <select id="m_jenismobil" class="vehicle-dropdown"><option value="">-- Pilih Kendaraan --</option></select>
+            </div>
+            <div class="field full">
+              <label>Keperluan</label>
+              <textarea id="m_keperluan" placeholder="Keperluan perjalanan"></textarea>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Catatan Tambahan</label>
+            <textarea id="f_catatan" placeholder="Informasi tambahan jika ada"></textarea>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button type="reset" class="btn btn-muted" onclick="toggleJenisFields()">Reset</button>
+          <button type="submit" class="btn btn-primary">Kirim Permintaan</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Daftar Pesanan
+        <button type="button" class="btn btn-sm btn-muted" style="float:right;" onclick="loadOrdersFromSheet(true)">Muat Ulang</button>
+      </h2>
+      <div class="filters">
+        <input type="text" id="siteFilterSite" placeholder="Filter Departemen/Site..." oninput="renderSiteTable()">
+        <select id="siteFilterJenis" onchange="renderSiteTable()">
+          <option value="">Semua Jenis</option>
+          <option value="tiket">Tiket</option>
+          <option value="hotel">Hotel</option>
+          <option value="mobil">Travel Mobil</option>
+        </select>
+        <select id="siteFilterStatus" onchange="renderSiteTable()">
+          <option value="">Semua Status</option>
+          <option value="Menunggu">Menunggu</option>
+          <option value="Diproses">Diproses</option>
+          <option value="Selesai">Selesai</option>
+          <option value="Ditolak">Ditolak</option>
+        </select>
+      </div>
+      <div id="siteTableWrap"></div>
+    </div>
+  </div>
+
+  <!-- ================= HO VIEW ================= -->
+  <div id="viewHO" class="view">
+    <div class="stat-cards" id="statCards"></div>
+
+    <div class="card">
+      <h2>Semua Permintaan Pemesanan (Travel HO)
+        <button type="button" class="btn btn-sm btn-muted" style="float:right;" onclick="loadOrdersFromSheet(true)">Muat Ulang</button>
+      </h2>
+      <div class="filters">
+        <input type="text" id="hoFilterSite" placeholder="Cari departemen/site..." oninput="renderHOTable()">
+        <select id="hoFilterJenis" onchange="renderHOTable()">
+          <option value="">Semua Jenis</option>
+          <option value="tiket">Tiket</option>
+          <option value="hotel">Hotel</option>
+          <option value="mobil">Travel Mobil</option>
+        </select>
+        <select id="hoFilterStatus" onchange="renderHOTable()">
+          <option value="">Semua Status</option>
+          <option value="Menunggu">Menunggu</option>
+          <option value="Diproses">Diproses</option>
+          <option value="Selesai">Selesai</option>
+          <option value="Ditolak">Ditolak</option>
+        </select>
+        <select id="hoFilterPrioritas" onchange="renderHOTable()">
+          <option value="">Semua Prioritas</option>
+          <option value="Normal">Normal</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+      </div>
+      <div id="hoTableWrap"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<input type="file" id="globalFileInput" style="display:none" onchange="handleFileSelected(event)">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  const STORAGE_KEY = 'travelOrders_v1';
+  const GAS_URL_KEY = 'gasWebAppUrl';
+  const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzxBWWm0TegowiZ36ttecMLu0_5kdNW9natBJWjIpYjadTT2hxMFzkBNHOXPblK8U5Q/exec';
+  let orders = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+  }
+
+  function getGasUrl(){
+    const stored = localStorage.getItem(GAS_URL_KEY);
+    return (stored !== null && stored !== '') ? stored : DEFAULT_GAS_URL;
+  }
+
+  function jenisCodeFromLabel(label){
+    if(label === 'Tiket Pesawat') return 'tiket';
+    if(label === 'Hotel') return 'hotel';
+    return 'mobil';
+  }
+
+  // Ubah satu order (bentuk internal app) jadi payload flat sesuai kolom Sheet.
+  function buildSheetPayload(order, action){
+    const d = order.detail || {};
+    return {
+      action: action,
+      id: order.id,
+      tanggal: order.tanggal,
+      site: order.site,
+      pemohon: order.pemohon,
+      jenis: jenisLabel(order.jenis),
+      prioritas: order.prioritas,
+      status: order.status,
+      namapenerbangan: order.jenis==='tiket' ? d.namapenerbangan : '',
+      darilokasi: order.jenis==='tiket' ? d.dari : (order.jenis==='hotel' ? d.lokasi : ''),
+      ke: order.jenis==='tiket' ? d.tujuan : '',
+      tanggalpenerbangan: order.jenis==='tiket' ? d.tanggal : '',
+      keperluantiket: order.jenis==='tiket' ? d.keperluan : '',
+      namahotel: order.jenis==='hotel' ? d.namahotel : '',
+      checkin: order.jenis==='hotel' ? d.checkin : '',
+      checkout: order.jenis==='hotel' ? d.checkout : '',
+      tipekamar: order.jenis==='hotel' ? d.tipe : '',
+      rutemobil: order.jenis==='mobil' ? `${d.dari || ''} - ${d.tujuan || ''}` : '',
+      tanggalmobil: order.jenis==='mobil' ? d.tanggal : '',
+      jammobil: order.jenis==='mobil' ? d.jam : '',
+      jenismobil: order.jenis==='mobil' ? d.jenismobil : '',
+      keperluanmobil: order.jenis==='mobil' ? d.keperluan : '',
+      catatan: order.catatan,
+      catatanho: order.catatanHO
+    };
+  }
+
+  // Ubah 1 baris hasil GET dari Sheet jadi bentuk order internal app.
+  function rowToOrder(row){
+    const jenisCode = jenisCodeFromLabel(row.jenis);
+    let detail = {};
+    if(jenisCode === 'tiket'){
+      detail = { namapenerbangan: row.namapenerbangan, dari: row.darilokasi, tujuan: row.ke, tanggal: row.tanggalpenerbangan, keperluan: row.keperluantiket };
+    } else if(jenisCode === 'hotel'){
+      detail = { lokasi: row.darilokasi, namahotel: row.namahotel, checkin: row.checkin, checkout: row.checkout, tipe: row.tipekamar };
+    } else {
+      const mobilParts = String(row.rutemobil || '').split(' - ');
+      detail = { dari: mobilParts[0] || '', tujuan: mobilParts[1] || '', tanggal: row.tanggalmobil, jam: row.jammobil, jenismobil: row.jenismobil, keperluan: row.keperluanmobil };
+    }
+    return {
+      id: row.id,
+      tanggal: row.tanggal,
+      site: row.site,
+      pemohon: row.pemohon,
+      jenis: jenisCode,
+      prioritas: row.prioritas,
+      status: row.status || 'Menunggu',
+      catatan: row.catatan || '',
+      catatanHO: row.catatanho || '',
+      pemesananUrl: row.pemesanan || '',
+      tiketVoucherUrl: row.tiketvoucher || '',
+      detail: detail
+    };
+  }
+
+  // Kirim satu aksi (create/updateStatus/delete) ke Apps Script Web App.
+  // Pakai mode 'no-cors' + body string supaya jadi "simple request" (tanpa
+  // preflight OPTIONS yang tidak didukung Apps Script). Kita tidak bisa baca
+  // responsnya, tapi await tetap menunggu request selesai diproses di server
+  // sebelum lanjut, jadi aman untuk langsung reload data sesudahnya.
+  async function postToSheet(payload){
+    const url = getGasUrl();
+    if(!url) return false;
+    try {
+      await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+      return true;
+    } catch(err){
+      console.error(err);
+      return false;
+    }
+  }
+
+  // Muat ulang seluruh daftar pesanan langsung dari Google Sheet (sumber data utama).
+  async function loadOrdersFromSheet(showErrorToast){
+    const url = getGasUrl();
+    if(!url) return;
+    try {
+      const sep = url.includes('?') ? '&' : '?';
+      const res = await fetch(url + sep + 'action=list');
+      const json = await res.json();
+      if(json && json.result === 'success' && Array.isArray(json.data)){
+        orders = json.data.map(rowToOrder);
+        save(); // cache lokal sebagai cadangan kalau offline
+        renderSiteTable();
+        renderHOTable();
+      }
+    } catch(err){
+      console.error(err);
+      if(showErrorToast) showToast('Gagal memuat data dari Google Sheet.', true);
+    }
+  }
+
+  // Ambil daftar lokasi dari sheet "F" (lewat Apps Script) dan isi ke semua dropdown lokasi.
+  async function loadLocations(){
+    const url = getGasUrl();
+    if(!url) return;
+    try {
+      const sep = url.includes('?') ? '&' : '?';
+      const res = await fetch(url + sep + 'action=locations');
+      const json = await res.json();
+      if(json && json.result === 'success' && Array.isArray(json.data)){
+        const optionsHtml = '<option value="">-- Pilih Lokasi --</option>' +
+          json.data.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+        document.querySelectorAll('.loc-dropdown').forEach(sel => {
+          const current = sel.value;
+          sel.innerHTML = optionsHtml;
+          if(current) sel.value = current;
+        });
+      }
+    } catch(err){
+      console.error('Gagal memuat daftar lokasi:', err);
+    }
+  }
+
+  // Ambil daftar jenis kendaraan dari sheet "F" kolom B (lewat Apps Script) dan isi ke dropdown Jenis Mobil.
+  async function loadVehicles(){
+    const url = getGasUrl();
+    if(!url) return;
+    try {
+      const sep = url.includes('?') ? '&' : '?';
+      const res = await fetch(url + sep + 'action=vehicles');
+      const json = await res.json();
+      if(json && json.result === 'success' && Array.isArray(json.data)){
+        const optionsHtml = '<option value="">-- Pilih Kendaraan --</option>' +
+          json.data.map(v => `<option value="${v}">${v}</option>`).join('');
+        document.querySelectorAll('.vehicle-dropdown').forEach(sel => {
+          const current = sel.value;
+          sel.innerHTML = optionsHtml;
+          if(current) sel.value = current;
+        });
+      }
+    } catch(err){
+      console.error('Gagal memuat daftar kendaraan:', err);
+    }
+  }
+
+  function switchRole(role){
+    document.getElementById('viewSite').classList.toggle('active', role==='site');
+    document.getElementById('viewHO').classList.toggle('active', role==='ho');
+    document.getElementById('btnSiteRole').classList.toggle('active', role==='site');
+    document.getElementById('btnHORole').classList.toggle('active', role==='ho');
+    if(role==='ho') renderHOTable();
+    else renderSiteTable();
+  }
+
+  function toggleJenisFields(){
+    const val = document.getElementById('f_jenis').value;
+    ['tiket','hotel','mobil'].forEach(j=>{
+      document.getElementById('fields_'+j).classList.toggle('show', j===val);
+    });
+  }
+
+  function jenisLabel(j){
+    return j==='tiket' ? 'Tiket Pesawat' : j==='hotel' ? 'Hotel' : 'Travel Mobil';
+  }
+  function jenisBadgeClass(j){
+    return 'jenis-'+j;
+  }
+
+  function fmtDate(d){
+    if(!d) return '-';
+    const dt = new Date(d);
+    if(isNaN(dt)) return d;
+    return dt.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+  }
+
+  function buildDetail(jenis){
+    if(jenis==='tiket'){
+      return {
+        namapenerbangan: document.getElementById('t_namapenerbangan').value,
+        dari: document.getElementById('t_dari').value,
+        tujuan: document.getElementById('t_tujuan').value,
+        tanggal: document.getElementById('t_tanggal').value,
+        keperluan: document.getElementById('t_keperluan').value
+      };
+    }
+    if(jenis==='hotel'){
+      const tipeEl = document.querySelector('input[name="h_tipe"]:checked');
+      return {
+        lokasi: document.getElementById('h_lokasi').value,
+        namahotel: document.getElementById('h_namahotel').value,
+        checkin: document.getElementById('h_checkin').value,
+        checkout: document.getElementById('h_checkout').value,
+        tipe: tipeEl ? tipeEl.value : 'Standard Room'
+      };
+    }
+    if(jenis==='mobil'){
+      return {
+        dari: document.getElementById('m_dari').value,
+        tujuan: document.getElementById('m_tujuan').value,
+        tanggal: document.getElementById('m_tanggal').value,
+        jam: document.getElementById('m_jam').value,
+        jenismobil: document.getElementById('m_jenismobil').value,
+        keperluan: document.getElementById('m_keperluan').value
+      };
+    }
+    return {};
+  }
+
+  function detailSummary(order){
+    const d = order.detail;
+    if(order.jenis==='tiket'){
+      return `<div class="detail-line"><b>${d.namapenerbangan||'-'}</b></div>
+              <div class="detail-line">${d.dari||'-'} &rarr; ${d.tujuan||'-'}</div>
+              <div class="detail-line">Tanggal: ${fmtDate(d.tanggal)}</div>
+              ${d.keperluan ? '<div class="detail-line">Keperluan: '+d.keperluan+'</div>' : ''}`;
+    }
+    if(order.jenis==='hotel'){
+      return `<div class="detail-line"><b>${d.namahotel||'-'}</b></div>
+              <div class="detail-line">Lokasi: ${d.lokasi||'-'}</div>
+              <div class="detail-line">Check-in: ${fmtDate(d.checkin)} | Check-out: ${fmtDate(d.checkout)}</div>
+              <div class="detail-line">Tipe: ${d.tipe||'-'}</div>`;
+    }
+    if(order.jenis==='mobil'){
+      return `<div class="detail-line">${d.dari||'-'} &rarr; ${d.tujuan||'-'}</div>
+              <div class="detail-line">Tanggal: ${fmtDate(d.tanggal)} ${d.jam ? 'Jam '+d.jam : ''}</div>
+              <div class="detail-line">Mobil: ${d.jenismobil||'-'}</div>
+              ${d.keperluan ? '<div class="detail-line">Keperluan: '+d.keperluan+'</div>' : ''}`;
+    }
+    return '';
+  }
+
+  async function submitOrder(e){
+    e.preventDefault();
+    const jenis = document.getElementById('f_jenis').value;
+    if(!jenis){ showToast('Pilih jenis pemesanan terlebih dahulu', true); return; }
+
+    const order = {
+      id: Date.now(),
+      tanggal: new Date().toISOString(),
+      site: document.getElementById('f_site').value,
+      pemohon: document.getElementById('f_pemohon').value,
+      jenis: jenis,
+      prioritas: document.getElementById('f_prioritas').value,
+      catatan: document.getElementById('f_catatan').value,
+      detail: buildDetail(jenis),
+      status: 'Menunggu',
+      catatanHO: ''
+    };
+
+    const submitBtn = document.querySelector('#orderForm button[type="submit"]');
+    if(submitBtn) submitBtn.disabled = true;
+    const ok = await postToSheet(buildSheetPayload(order, 'create'));
+    if(submitBtn) submitBtn.disabled = false;
+
+    document.getElementById('orderForm').reset();
+    toggleJenisFields();
+
+    if(ok){
+      showToast('Permintaan berhasil dikirim!');
+      await loadOrdersFromSheet(true);
+    } else {
+      showToast('Gagal mengirim ke Google Sheet. Cek koneksi lalu coba lagi.', true);
+    }
+  }
+
+  function showToast(msg, isError){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? 'var(--danger)' : 'var(--success)';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2500);
+  }
+
+  function filteredOrders(scope){
+    let list = [...orders];
+    if(scope==='site'){
+      const site = document.getElementById('siteFilterSite').value.trim().toLowerCase();
+      const jenis = document.getElementById('siteFilterJenis').value;
+      const status = document.getElementById('siteFilterStatus').value;
+      if(site) list = list.filter(o=>o.site.toLowerCase().includes(site));
+      if(jenis) list = list.filter(o=>o.jenis===jenis);
+      if(status) list = list.filter(o=>o.status===status);
+    } else {
+      const site = document.getElementById('hoFilterSite').value.trim().toLowerCase();
+      const jenis = document.getElementById('hoFilterJenis').value;
+      const status = document.getElementById('hoFilterStatus').value;
+      const prioritas = document.getElementById('hoFilterPrioritas').value;
+      if(site) list = list.filter(o=>o.site.toLowerCase().includes(site));
+      if(jenis) list = list.filter(o=>o.jenis===jenis);
+      if(status) list = list.filter(o=>o.status===status);
+      if(prioritas) list = list.filter(o=>o.prioritas===prioritas);
+    }
+    return list;
+  }
+
+  function renderSiteTable(){
+    const wrap = document.getElementById('siteTableWrap');
+    const list = filteredOrders('site');
+    if(list.length===0){
+      wrap.innerHTML = '<div class="empty-state">Belum ada pesanan.</div>';
+      return;
+    }
+    let html = `<table><thead><tr>
+      <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Detail</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
+      </tr></thead><tbody>`;
+    list.forEach(o=>{
+      html += `<tr>
+        <td>${fmtDate(o.tanggal)}</td>
+        <td>${o.site}</td>
+        <td>${o.pemohon}</td>
+        <td><span class="jenis-badge ${jenisBadgeClass(o.jenis)}">${jenisLabel(o.jenis)}</span></td>
+        <td>${detailSummary(o)}</td>
+        <td>${o.prioritas}</td>
+        <td><span class="status-pill status-${o.status}">${o.status}</span></td>
+        <td>${
+          (o.status === 'Selesai' && o.tiketVoucherUrl)
+            ? `<a class="btn btn-sm btn-success" href="${o.tiketVoucherUrl}" target="_blank" rel="noopener">Unduh Tiket/Voucher</a>`
+            : `<button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>`
+        }</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  function renderStats(){
+    const total = orders.length;
+    const menunggu = orders.filter(o=>o.status==='Menunggu').length;
+    const diproses = orders.filter(o=>o.status==='Diproses').length;
+    const selesai = orders.filter(o=>o.status==='Selesai').length;
+    const ditolak = orders.filter(o=>o.status==='Ditolak').length;
+    document.getElementById('statCards').innerHTML = `
+      <div class="stat-card"><div class="num">${total}</div><div class="lbl">Total Pesanan</div></div>
+      <div class="stat-card"><div class="num">${menunggu}</div><div class="lbl">Menunggu</div></div>
+      <div class="stat-card"><div class="num">${diproses}</div><div class="lbl">Diproses</div></div>
+      <div class="stat-card"><div class="num">${selesai}</div><div class="lbl">Selesai</div></div>
+      <div class="stat-card"><div class="num">${ditolak}</div><div class="lbl">Ditolak</div></div>
+    `;
+  }
+
+  function renderHOTable(){
+    renderStats();
+    const wrap = document.getElementById('hoTableWrap');
+    const list = filteredOrders('ho');
+    if(list.length===0){
+      wrap.innerHTML = '<div class="empty-state">Belum ada pesanan.</div>';
+      return;
+    }
+    let html = `<table><thead><tr>
+      <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Detail</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
+      </tr></thead><tbody>`;
+    list.forEach(o=>{
+      const locked = !!(o.pemesananUrl || o.tiketVoucherUrl);
+      const statusCell = locked
+        ? `<span class="status-pill status-${o.status}">${o.status}</span>
+           <div class="detail-line">Status terkunci (sudah ada file)</div>`
+        : `<span class="status-pill status-${o.status}">${o.status}</span><br>
+           <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
+             <option value="Menunggu" ${o.status==='Menunggu'?'selected':''}>Menunggu</option>
+             <option value="Diproses" ${o.status==='Diproses'?'selected':''}>Diproses</option>
+             <option value="Selesai" ${o.status==='Selesai'?'selected':''}>Selesai</option>
+             <option value="Ditolak" ${o.status==='Ditolak'?'selected':''}>Ditolak</option>
+           </select>`;
+
+      const pemesananCell = o.pemesananUrl
+        ? `<a href="${o.pemesananUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Pemesanan</a>`
+        : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'pemesanan')">Upload Pemesanan</button>`;
+
+      const tiketCell = o.tiketVoucherUrl
+        ? `<a href="${o.tiketVoucherUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Tiket/Voucher</a>`
+        : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'tiketvoucher')">Upload Tiket/Voucher</button>`;
+
+      html += `<tr>
+        <td>${fmtDate(o.tanggal)}</td>
+        <td>${o.site}</td>
+        <td>${o.pemohon}</td>
+        <td><span class="jenis-badge ${jenisBadgeClass(o.jenis)}">${jenisLabel(o.jenis)}</span></td>
+        <td>${detailSummary(o)}${o.catatan ? '<div class="detail-line">Catatan: '+o.catatan+'</div>' : ''}</td>
+        <td>${o.prioritas}</td>
+        <td>${statusCell}</td>
+        <td class="action-cell">
+          <button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>
+          ${pemesananCell}
+          ${tiketCell}
+          <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">Hapus</button>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  async function updateStatus(id, status){
+    const o = orders.find(x=>x.id===id);
+    if(!o) return;
+    const prevStatus = o.status;
+    o.status = status; // update optimis di tampilan
+    renderHOTable();
+    renderSiteTable();
+    const ok = await postToSheet({ action:'updateStatus', id: String(id), status: status, catatanho: o.catatanHO || '' });
+    if(ok){
+      showToast('Status diperbarui: '+status);
+      await loadOrdersFromSheet();
+    } else {
+      o.status = prevStatus; // rollback kalau gagal
+      renderHOTable();
+      renderSiteTable();
+      showToast('Gagal update status ke Google Sheet.', true);
+    }
+  }
+
+  // ===== Upload Pemesanan / Tiket-Voucher ke Google Drive (lewat Apps Script) =====
+  let pendingUploadId = null;
+  let pendingUploadType = null;
+
+  function promptUpload(id, fileType){
+    pendingUploadId = id;
+    pendingUploadType = fileType;
+    document.getElementById('globalFileInput').click();
+  }
+
+  function handleFileSelected(e){
+    const file = e.target.files[0];
+    e.target.value = ''; // reset supaya file yang sama bisa dipilih lagi nanti
+    if(!file || !pendingUploadId || !pendingUploadType) return;
+    const id = pendingUploadId;
+    const fileType = pendingUploadType;
+    const reader = new FileReader();
+    reader.onload = function(){
+      const base64 = String(reader.result).split(',')[1] || '';
+      doUploadFile(id, fileType, file.name, file.type, base64);
+    };
+    reader.onerror = function(){
+      showToast('Gagal membaca file.', true);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function doUploadFile(id, fileType, filename, mimeType, base64){
+    const label = fileType === 'pemesanan' ? 'Pemesanan' : 'Tiket/Voucher';
+    showToast(`Mengupload ${label}...`);
+    const ok = await postToSheet({
+      action: 'uploadFile',
+      id: String(id),
+      fileType: fileType,
+      filename: filename,
+      mimeType: mimeType || 'application/octet-stream',
+      base64: base64
+    });
+    if(ok){
+      showToast(`${label} berhasil diupload.`);
+      await loadOrdersFromSheet();
+    } else {
+      showToast(`Gagal upload ${label}.`, true);
+    }
+  }
+
+  async function deleteOrder(id){
+    if(!confirm('Hapus pesanan ini?')) return;
+    const ok = await postToSheet({ action:'delete', id: String(id) });
+    if(ok){
+      showToast('Pesanan dihapus.');
+      await loadOrdersFromSheet();
+    } else {
+      showToast('Gagal menghapus di Google Sheet.', true);
+    }
+  }
+
+  // ===== Unduh PDF (layout mengikuti formulir PDF asli) =====
+  function downloadPDF(id){
+    const o = orders.find(x=>x.id===id);
+    if(!o) return;
+    if(!window.jspdf){ showToast('Library PDF belum siap, coba lagi sebentar.', true); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'pt', format:'a4' });
+    const left = 56;
+    const labelX = left + 16;
+    const colonX = left + 200;
+    const valueX = left + 214;
+    let y = 70;
+
+    let title;
+    if(o.jenis==='tiket') title = 'FORMULIR PERMOHONAN TIKET PESAWAT';
+    else if(o.jenis==='hotel') title = 'FORMULIR PERMOHONAN RESERVASI HOTEL';
+    else title = 'FORMULIR PERMOHONAN TRAVEL MOBIL';
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(15);
+    doc.text(title, left, y);
+    y += 20;
+
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(10.5);
+    doc.text('Mohon isi detail di bawah ini secara lengkap untuk keperluan administrasi.', left, y);
+    y += 26;
+
+    function sectionTitle(text){
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(12);
+      doc.text(text, left, y);
+      y += 20;
+    }
+    function bulletRow(label, value){
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10.5);
+      doc.text('-', labelX, y);
+      doc.text(label, labelX + 12, y);
+      doc.text(':', colonX, y);
+      doc.setFont('helvetica','normal');
+      doc.text(String(value || ''), valueX, y);
+      // garis isian bawah teks (jika kosong tetap tampilkan garis)
+      const lineY = y + 3;
+      doc.setDrawColor(0);
+      doc.line(valueX, lineY, 500, lineY);
+      y += 22;
+    }
+    function checklistRow(label, checked){
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(10.5);
+      doc.text(`[ ${checked ? 'X' : ' '} ] ${label}`, labelX, y);
+      y += 18;
+    }
+
+    sectionTitle('1. Informasi Pemesan');
+    bulletRow('Nama Lengkap Pemesan', o.pemohon);
+    bulletRow('Departemen / Divisi', o.site);
+    y += 6;
+
+    sectionTitle('2. Detail Reservasi');
+    const d = o.detail;
+    if(o.jenis==='tiket'){
+      bulletRow('Nama Penerbangan', d.namapenerbangan);
+      bulletRow('Rute', `${d.dari || ''} - ${d.tujuan || ''}`);
+      bulletRow('Tanggal Penerbangan', fmtDate(d.tanggal));
+      bulletRow('Keperluan', d.keperluan);
+    } else if(o.jenis==='hotel'){
+      bulletRow('Lokasi Pemesanan', d.lokasi);
+      bulletRow('Nama Hotel', d.namahotel);
+      bulletRow('Tanggal Check-in', fmtDate(d.checkin));
+      bulletRow('Tanggal Check-out', fmtDate(d.checkout));
+      y += 6;
+      doc.setFont('helvetica','bolditalic');
+      doc.setFontSize(11);
+      doc.text('3. Pilihan Tipe Kamar (Silakan centang [X] salah satu)', left, y);
+      y += 20;
+      checklistRow('Standard Room', d.tipe === 'Standard Room');
+      checklistRow('Deluxe Room', d.tipe === 'Deluxe Room');
+    } else {
+      bulletRow('Rute', `${d.dari || ''} - ${d.tujuan || ''}`);
+      bulletRow('Tanggal', fmtDate(d.tanggal));
+      bulletRow('Jam Penjemputan', d.jam);
+      bulletRow('Jenis Mobil', d.jenismobil);
+      bulletRow('Keperluan', d.keperluan);
+    }
+
+    y += 18;
+    sectionTitle('Persetujuan & Otorisasi');
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10.5);
+    doc.text('Formulir ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana', left, y);
+    y += 14;
+    doc.text('mestinya.', left, y);
+    y += 60;
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11);
+    const leftLabel = 'Tanda tangan pemesan';
+    const rightLabel = 'Diketahui';
+    doc.text(leftLabel, left, y);
+    doc.text(rightLabel, left + 280, y);
+    const leftCenterX = left + doc.getTextWidth(leftLabel) / 2;
+    const rightCenterX = left + 280 + doc.getTextWidth(rightLabel) / 2;
+    y += 72;
+
+    doc.setFont('helvetica','normal');
+    doc.text(`(  ${o.pemohon || ''}  )`, leftCenterX, y, { align: 'center' });
+    doc.text('(                          )', rightCenterX, y, { align: 'center' });
+
+    const fname = `${title.replace(/\s+/g,'_')}_${(o.pemohon||'pemesan').replace(/\s+/g,'_')}.pdf`;
+    doc.save(fname);
+  }
+
+  // init
+  toggleJenisFields();
+  renderSiteTable();
+  renderHOTable();
+  loadOrdersFromSheet(); // muat data terkini dari Google Sheet saat halaman dibuka
+  loadLocations(); // muat daftar lokasi (dropdown Dari/Tujuan/Lokasi) dari sheet "F"
+  loadVehicles(); // muat daftar jenis kendaraan (dropdown Jenis Mobil) dari sheet "F" kolom B
+</script>
+
+</body>
+</html>
