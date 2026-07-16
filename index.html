@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Pemesanan Travel - HO & Site</title>
+<title>Pemesanan Tiket, Hotel dan Travel</title>
 <style>
   :root{
     --primary:#1e5f8c;
@@ -35,6 +35,9 @@
     align-items:center;
     flex-wrap:wrap;
     gap:12px;
+    position:sticky;
+    top:0;
+    z-index:200;
   }
   header h1{
     margin:0;
@@ -68,12 +71,23 @@
     color:var(--primary-dark);
   }
   main{
-    max-width:1200px;
-    margin:0 auto;
-    padding:20px;
+    max-width:100%;
+    margin:0;
+    padding:20px 24px;
   }
   .view{display:none;}
   .view.active{display:block;}
+  .freeze-panel{
+    position:sticky;
+    top:var(--header-h, 80px);
+    z-index:150;
+    background:var(--bg);
+    padding-top:4px;
+    margin-left:-24px;
+    margin-right:-24px;
+    padding-left:24px;
+    padding-right:24px;
+  }
   .card{
     background:var(--card);
     border:1px solid var(--border);
@@ -277,7 +291,7 @@
 
   <!-- ================= SITE VIEW ================= -->
   <div id="viewSite" class="view active">
-    <div class="card">
+    <div class="card freeze-panel">
       <h2>Form Permintaan Pemesanan</h2>
       <form id="orderForm" onsubmit="submitOrder(event)">
         <div class="grid">
@@ -424,7 +438,7 @@
 
   <!-- ================= HO VIEW ================= -->
   <div id="viewHO" class="view">
-    <div class="stat-cards" id="statCards"></div>
+    <div class="stat-cards freeze-panel" id="statCards"></div>
 
     <div class="card">
       <h2>Semua Permintaan Pemesanan (Travel HO)
@@ -854,6 +868,13 @@
         ? `<a href="${o.tiketVoucherUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Tiket/Voucher</a>`
         : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'tiketvoucher')">Upload Tiket/Voucher</button>`;
 
+      // Kalau Pemesanan & Tiket/Voucher sudah lengkap diupload, tombol Unduh PDF
+      // dan Hapus tidak perlu tampil lagi (dokumen resminya sudah ada di Drive).
+      const fullyUploaded = !!(o.pemesananUrl && o.tiketVoucherUrl);
+      const pdfAndDeleteCell = fullyUploaded ? '' : `
+          <button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">Hapus</button>`;
+
       html += `<tr>
         <td>${fmtDate(o.tanggal)}</td>
         <td>${o.site}</td>
@@ -863,10 +884,9 @@
         <td>${o.prioritas}</td>
         <td>${statusCell}</td>
         <td class="action-cell">
-          <button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>
+          ${pdfAndDeleteCell}
           ${pemesananCell}
           ${tiketCell}
-          <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">Hapus</button>
         </td>
       </tr>`;
     });
@@ -1064,10 +1084,21 @@
     doc.save(fname);
   }
 
+  // Ukur tinggi header asli supaya panel yang di-freeze (form Site / stat cards HO)
+  // menempel pas di bawah header, bukan pakai angka perkiraan yang bisa meleset.
+  function updateHeaderHeightVar(){
+    const headerEl = document.querySelector('header');
+    if(headerEl){
+      document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight + 'px');
+    }
+  }
+  window.addEventListener('resize', updateHeaderHeightVar);
+
   // init
   toggleJenisFields();
   renderSiteTable();
   renderHOTable();
+  updateHeaderHeightVar();
   loadOrdersFromSheet(); // muat data terkini dari Google Sheet saat halaman dibuka
   loadLocations(); // muat daftar lokasi (dropdown Dari/Tujuan/Lokasi) dari sheet "F"
   loadVehicles(); // muat daftar jenis kendaraan (dropdown Jenis Mobil) dari sheet "F" kolom B
