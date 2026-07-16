@@ -510,15 +510,15 @@
       prioritas: order.prioritas,
       status: order.status,
       namapenerbangan: order.jenis==='tiket' ? d.namapenerbangan : '',
-      darilokasi: order.jenis==='tiket' ? d.dari : (order.jenis==='hotel' ? d.lokasi : ''),
-      ke: order.jenis==='tiket' ? d.tujuan : '',
+      darilokasi: order.jenis==='tiket' ? d.dari : (order.jenis==='hotel' ? d.lokasi : (order.jenis==='mobil' ? d.dari : '')),
+      ke: order.jenis==='tiket' ? d.tujuan : (order.jenis==='mobil' ? d.tujuan : ''),
       tanggalpenerbangan: order.jenis==='tiket' ? d.tanggal : '',
       keperluantiket: order.jenis==='tiket' ? d.keperluan : '',
       namahotel: order.jenis==='hotel' ? d.namahotel : '',
       checkin: order.jenis==='hotel' ? d.checkin : '',
       checkout: order.jenis==='hotel' ? d.checkout : '',
       tipekamar: order.jenis==='hotel' ? d.tipe : '',
-      rutemobil: order.jenis==='mobil' ? `${d.dari || ''} - ${d.tujuan || ''}` : '',
+      rutemobil: '',
       tanggalmobil: order.jenis==='mobil' ? d.tanggal : '',
       jammobil: order.jenis==='mobil' ? d.jam : '',
       jenismobil: order.jenis==='mobil' ? d.jenismobil : '',
@@ -537,8 +537,7 @@
     } else if(jenisCode === 'hotel'){
       detail = { lokasi: row.darilokasi, namahotel: row.namahotel, checkin: row.checkin, checkout: row.checkout, tipe: row.tipekamar };
     } else {
-      const mobilParts = String(row.rutemobil || '').split(' - ');
-      detail = { dari: mobilParts[0] || '', tujuan: mobilParts[1] || '', tanggal: row.tanggalmobil, jam: row.jammobil, jenismobil: row.jenismobil, keperluan: row.keperluanmobil };
+      detail = { dari: row.darilokasi || '', tujuan: row.ke || '', tanggal: row.tanggalmobil, jam: row.jammobil, jenismobil: row.jenismobil, keperluan: row.keperluanmobil };
     }
     return {
       id: row.id,
@@ -708,9 +707,7 @@
     const d = order.detail;
     if(order.jenis==='tiket'){
       return `<div class="detail-line"><b>${d.namapenerbangan||'-'}</b></div>
-              <div class="detail-line">${d.dari||'-'} &rarr; ${d.tujuan||'-'}</div>
-              <div class="detail-line">Tanggal: ${fmtDate(d.tanggal)}</div>
-              ${d.keperluan ? '<div class="detail-line">Keperluan: '+d.keperluan+'</div>' : ''}`;
+              <div class="detail-line">${d.dari||'-'} &rarr; ${d.tujuan||'-'}</div>`;
     }
     if(order.jenis==='hotel'){
       return `<div class="detail-line"><b>${d.namahotel||'-'}</b></div>
@@ -720,11 +717,27 @@
     }
     if(order.jenis==='mobil'){
       return `<div class="detail-line">${d.dari||'-'} &rarr; ${d.tujuan||'-'}</div>
-              <div class="detail-line">Tanggal: ${fmtDate(d.tanggal)} ${d.jam ? 'Jam '+d.jam : ''}</div>
-              <div class="detail-line">Mobil: ${d.jenismobil||'-'}</div>
-              ${d.keperluan ? '<div class="detail-line">Keperluan: '+d.keperluan+'</div>' : ''}`;
+              <div class="detail-line">Mobil: ${d.jenismobil||'-'} ${d.jam ? '| Jam '+d.jam : ''}</div>`;
     }
     return '';
+  }
+
+  // Tanggal utama ("keberangkatan") per jenis pemesanan, ditampilkan di kolom tersendiri.
+  function tglBerangkat(order){
+    const d = order.detail;
+    if(order.jenis==='tiket') return fmtDate(d.tanggal);
+    if(order.jenis==='hotel') return fmtDate(d.checkin);
+    if(order.jenis==='mobil') return fmtDate(d.tanggal);
+    return '-';
+  }
+
+  // Gabungan Keperluan + Catatan, ditampilkan di kolom "Catatan" tersendiri.
+  function catatanColumn(order){
+    const d = order.detail;
+    const parts = [];
+    if(d.keperluan) parts.push('<div class="detail-line">Keperluan: '+d.keperluan+'</div>');
+    if(order.catatan) parts.push('<div class="detail-line">Catatan: '+order.catatan+'</div>');
+    return parts.length ? parts.join('') : '-';
   }
 
   async function submitOrder(e){
@@ -799,7 +812,7 @@
       return;
     }
     let html = `<table><thead><tr>
-      <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Detail</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
+      <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Tgl Berangkat</th><th>Detail</th><th>Catatan</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
       </tr></thead><tbody>`;
     list.forEach(o=>{
       html += `<tr>
@@ -807,7 +820,9 @@
         <td>${o.site}</td>
         <td>${o.pemohon}</td>
         <td><span class="jenis-badge ${jenisBadgeClass(o.jenis)}">${jenisLabel(o.jenis)}</span></td>
+        <td>${tglBerangkat(o)}</td>
         <td>${detailSummary(o)}</td>
+        <td>${catatanColumn(o)}</td>
         <td>${o.prioritas}</td>
         <td><span class="status-pill status-${o.status}">${o.status}</span></td>
         <td>${
@@ -845,7 +860,7 @@
       return;
     }
     let html = `<table><thead><tr>
-      <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Detail</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
+      <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Tgl Berangkat</th><th>Detail</th><th>Catatan</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
       </tr></thead><tbody>`;
     list.forEach(o=>{
       const locked = !!(o.pemesananUrl || o.tiketVoucherUrl);
@@ -864,13 +879,17 @@
         ? `<a href="${o.pemesananUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Pemesanan</a>`
         : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'pemesanan')">Upload Pemesanan</button>`;
 
-      const tiketCell = o.tiketVoucherUrl
-        ? `<a href="${o.tiketVoucherUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Tiket/Voucher</a>`
-        : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'tiketvoucher')">Upload Tiket/Voucher</button>`;
+      // Travel Mobil tidak butuh Tiket/Voucher (tidak ada tiket untuk mobil), jadi tombolnya disembunyikan.
+      const tiketCell = o.jenis === 'mobil'
+        ? ''
+        : (o.tiketVoucherUrl
+          ? `<a href="${o.tiketVoucherUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Tiket/Voucher</a>`
+          : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'tiketvoucher')">Upload Tiket/Voucher</button>`);
 
       // Kalau Pemesanan & Tiket/Voucher sudah lengkap diupload, tombol Unduh PDF
       // dan Hapus tidak perlu tampil lagi (dokumen resminya sudah ada di Drive).
-      const fullyUploaded = !!(o.pemesananUrl && o.tiketVoucherUrl);
+      // Untuk Travel Mobil, cukup Pemesanan saja (karena tidak ada Tiket/Voucher).
+      const fullyUploaded = o.jenis === 'mobil' ? !!o.pemesananUrl : !!(o.pemesananUrl && o.tiketVoucherUrl);
       const pdfAndDeleteCell = fullyUploaded ? '' : `
           <button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>
           <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">Hapus</button>`;
@@ -880,7 +899,9 @@
         <td>${o.site}</td>
         <td>${o.pemohon}</td>
         <td><span class="jenis-badge ${jenisBadgeClass(o.jenis)}">${jenisLabel(o.jenis)}</span></td>
-        <td>${detailSummary(o)}${o.catatan ? '<div class="detail-line">Catatan: '+o.catatan+'</div>' : ''}</td>
+        <td>${tglBerangkat(o)}</td>
+        <td>${detailSummary(o)}</td>
+        <td>${catatanColumn(o)}</td>
         <td>${o.prioritas}</td>
         <td>${statusCell}</td>
         <td class="action-cell">
