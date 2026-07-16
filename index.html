@@ -1003,7 +1003,7 @@
         <td>${
           (o.status === 'Selesai' && o.tiketVoucherUrl)
             ? `<a class="btn btn-sm btn-success" href="${o.tiketVoucherUrl}" target="_blank" rel="noopener">Unduh Tiket/Voucher</a>`
-            : `<button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>`
+            : `<button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Lihat PDF</button>`
         }</td>
       </tr>`;
     });
@@ -1273,14 +1273,17 @@
     doc.text(rightLabel, left + 280, y);
     const leftCenterX = left + doc.getTextWidth(leftLabel) / 2;
     const rightCenterX = left + 280 + doc.getTextWidth(rightLabel) / 2;
-    y += 72;
+    y += 86;
 
     doc.setFont('helvetica','normal');
     doc.text(`(  ${o.pemohon || ''}  )`, leftCenterX, y, { align: 'center' });
     doc.text('(                          )', rightCenterX, y, { align: 'center' });
 
-    const fname = `${title.replace(/\s+/g,'_')}_${(o.pemohon||'pemesan').replace(/\s+/g,'_')}.pdf`;
-    doc.save(fname);
+    // Buka sebagai preview di tab baru (viewer PDF bawaan browser), bukan langsung
+    // download — supaya tidak menuhi folder Download. Kalau memang perlu file PDF-nya,
+    // user tinggal Print > Save as PDF dari viewer tersebut.
+    const blobUrl = doc.output('bloburl');
+    window.open(blobUrl, '_blank');
   }
 
   // init
