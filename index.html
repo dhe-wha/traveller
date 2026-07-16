@@ -81,13 +81,55 @@
     position:sticky;
     top:var(--header-h, 80px);
     z-index:150;
-    background:var(--bg);
-    padding-top:4px;
-    margin-left:-24px;
-    margin-right:-24px;
-    padding-left:24px;
-    padding-right:24px;
   }
+  .freeze-panel-2{
+    position:sticky;
+    z-index:140;
+    /* top diatur lewat JS (updateStickyOffsets), tergantung tinggi elemen di atasnya */
+  }
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(20,30,40,.5);
+    z-index:500;
+    align-items:flex-start;
+    justify-content:center;
+    overflow-y:auto;
+    padding:40px 20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:var(--card);
+    border-radius:12px;
+    max-width:960px;
+    width:100%;
+    padding:24px;
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+  }
+  .modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+    border-bottom:2px solid var(--border);
+    padding-bottom:10px;
+  }
+  .modal-header h2{
+    margin:0;
+    font-size:16px;
+    color:var(--primary-dark);
+  }
+  .modal-close{
+    background:none;
+    border:none;
+    font-size:26px;
+    line-height:1;
+    color:var(--muted);
+    cursor:pointer;
+    padding:0 4px;
+  }
+  .modal-close:hover{color:var(--danger);}
   .card{
     background:var(--card);
     border:1px solid var(--border);
@@ -281,9 +323,12 @@
     <h1>Sistem Pemesanan Travel</h1>
     <div class="subtitle">Head Office &amp; Site</div>
   </div>
-  <div class="role-switch">
-    <button id="btnSiteRole" class="active" onclick="switchRole('site')">Site (Pemesan)</button>
-    <button id="btnHORole" onclick="switchRole('ho')">Travel HO</button>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <button id="btnTambahPermintaan" type="button" class="btn btn-primary" onclick="openOrderModal()">+ Tambah Permintaan</button>
+    <div class="role-switch">
+      <button id="btnSiteRole" class="active" onclick="switchRole('site')">Site (Pemesan)</button>
+      <button id="btnHORole" onclick="switchRole('ho')">Travel HO</button>
+    </div>
   </div>
 </header>
 
@@ -291,128 +336,7 @@
 
   <!-- ================= SITE VIEW ================= -->
   <div id="viewSite" class="view active">
-    <div class="card freeze-panel">
-      <h2>Form Permintaan Pemesanan</h2>
-      <form id="orderForm" onsubmit="submitOrder(event)">
-        <div class="grid">
-          <div class="field">
-            <label>Nama Lengkap Pemesan *</label>
-            <input type="text" id="f_pemohon" placeholder="Nama lengkap pemohon" required>
-          </div>
-          <div class="field">
-            <label>Departemen / Divisi (Site) *</label>
-            <input type="text" id="f_site" placeholder="Contoh: Site Balikpapan" required>
-          </div>
-          <div class="field">
-            <label>Jenis Pemesanan *</label>
-            <select id="f_jenis" onchange="toggleJenisFields()" required>
-              <option value="">-- Pilih Jenis --</option>
-              <option value="tiket">Tiket Pesawat</option>
-              <option value="hotel">Hotel</option>
-              <option value="mobil">Travel Mobil</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Prioritas</label>
-            <select id="f_prioritas">
-              <option value="Normal">Normal</option>
-              <option value="Urgent">Urgent</option>
-            </select>
-          </div>
-
-          <!-- TIKET FIELDS (mengikuti Form Permohonan Tiket Pesawat) -->
-          <div class="jenis-fields" id="fields_tiket">
-            <div class="field">
-              <label>Nama Penerbangan</label>
-              <input type="text" id="t_namapenerbangan" placeholder="Contoh: Garuda Indonesia">
-            </div>
-            <div class="field">
-              <label>Dari</label>
-              <select id="t_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
-            </div>
-            <div class="field">
-              <label>Tujuan</label>
-              <select id="t_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
-            </div>
-            <div class="field">
-              <label>Tanggal Penerbangan</label>
-              <input type="date" id="t_tanggal">
-            </div>
-            <div class="field full">
-              <label>Keperluan</label>
-              <textarea id="t_keperluan" placeholder="Keperluan perjalanan dinas"></textarea>
-            </div>
-          </div>
-
-          <!-- HOTEL FIELDS (mengikuti Form Permohonan Reservasi Hotel) -->
-          <div class="jenis-fields" id="fields_hotel">
-            <div class="field">
-              <label>Lokasi Pemesanan</label>
-              <select id="h_lokasi" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
-            </div>
-            <div class="field">
-              <label>Nama Hotel</label>
-              <input type="text" id="h_namahotel" placeholder="Contoh: Hotel Aston Balikpapan">
-            </div>
-            <div class="field">
-              <label>Tanggal Check-in</label>
-              <input type="date" id="h_checkin">
-            </div>
-            <div class="field">
-              <label>Tanggal Check-out</label>
-              <input type="date" id="h_checkout">
-            </div>
-            <div class="field full">
-              <label>Pilihan Tipe Kamar</label>
-              <div class="radio-group">
-                <label><input type="radio" name="h_tipe" value="Standard Room" checked> Standard Room</label>
-                <label><input type="radio" name="h_tipe" value="Deluxe Room"> Deluxe Room</label>
-              </div>
-            </div>
-          </div>
-
-          <!-- MOBIL FIELDS -->
-          <div class="jenis-fields" id="fields_mobil">
-            <div class="field">
-              <label>Dari</label>
-              <select id="m_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
-            </div>
-            <div class="field">
-              <label>Tujuan</label>
-              <select id="m_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
-            </div>
-            <div class="field">
-              <label>Tanggal</label>
-              <input type="date" id="m_tanggal">
-            </div>
-            <div class="field">
-              <label>Jam Penjemputan</label>
-              <input type="time" id="m_jam">
-            </div>
-            <div class="field">
-              <label>Jenis Mobil</label>
-              <select id="m_jenismobil" class="vehicle-dropdown"><option value="">-- Pilih Kendaraan --</option></select>
-            </div>
-            <div class="field full">
-              <label>Keperluan</label>
-              <textarea id="m_keperluan" placeholder="Keperluan perjalanan"></textarea>
-            </div>
-          </div>
-
-          <div class="field full">
-            <label>Catatan Tambahan</label>
-            <textarea id="f_catatan" placeholder="Informasi tambahan jika ada"></textarea>
-          </div>
-        </div>
-
-        <div class="actions-row">
-          <button type="reset" class="btn btn-muted" onclick="toggleJenisFields()">Reset</button>
-          <button type="submit" class="btn btn-primary">Kirim Permintaan</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="card">
+    <div class="card freeze-panel" id="siteListTopbar">
       <h2>Daftar Pesanan
         <button type="button" class="btn btn-sm btn-muted" style="float:right;" onclick="loadOrdersFromSheet(true)">Muat Ulang</button>
       </h2>
@@ -432,6 +356,9 @@
           <option value="Ditolak">Ditolak</option>
         </select>
       </div>
+    </div>
+
+    <div class="card">
       <div id="siteTableWrap"></div>
     </div>
   </div>
@@ -440,7 +367,7 @@
   <div id="viewHO" class="view">
     <div class="stat-cards freeze-panel" id="statCards"></div>
 
-    <div class="card">
+    <div class="card freeze-panel-2" id="hoListTopbar">
       <h2>Semua Permintaan Pemesanan (Travel HO)
         <button type="button" class="btn btn-sm btn-muted" style="float:right;" onclick="loadOrdersFromSheet(true)">Muat Ulang</button>
       </h2>
@@ -465,11 +392,141 @@
           <option value="Urgent">Urgent</option>
         </select>
       </div>
+    </div>
+
+    <div class="card">
       <div id="hoTableWrap"></div>
     </div>
   </div>
 
 </main>
+
+<!-- ================= MODAL: FORM PERMINTAAN PEMESANAN ================= -->
+<div class="modal-overlay" id="orderModalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Form Permintaan Pemesanan</h2>
+      <button type="button" class="modal-close" onclick="closeOrderModal()">&times;</button>
+    </div>
+    <form id="orderForm" onsubmit="submitOrder(event)">
+      <div class="grid">
+        <div class="field">
+          <label>Nama Lengkap Pemesan *</label>
+          <input type="text" id="f_pemohon" placeholder="Nama lengkap pemohon" required>
+        </div>
+        <div class="field">
+          <label>Departemen / Divisi (Site) *</label>
+          <input type="text" id="f_site" placeholder="Contoh: Site Balikpapan" required>
+        </div>
+        <div class="field">
+          <label>Jenis Pemesanan *</label>
+          <select id="f_jenis" onchange="toggleJenisFields()" required>
+            <option value="">-- Pilih Jenis --</option>
+            <option value="tiket">Tiket Pesawat</option>
+            <option value="hotel">Hotel</option>
+            <option value="mobil">Travel Mobil</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Prioritas</label>
+          <select id="f_prioritas">
+            <option value="Normal">Normal</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+
+        <!-- TIKET FIELDS (mengikuti Form Permohonan Tiket Pesawat) -->
+        <div class="jenis-fields" id="fields_tiket">
+          <div class="field">
+            <label>Nama Penerbangan</label>
+            <input type="text" id="t_namapenerbangan" placeholder="Contoh: Garuda Indonesia">
+          </div>
+          <div class="field">
+            <label>Dari</label>
+            <select id="t_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+          </div>
+          <div class="field">
+            <label>Tujuan</label>
+            <select id="t_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+          </div>
+          <div class="field">
+            <label>Tanggal Penerbangan</label>
+            <input type="date" id="t_tanggal">
+          </div>
+          <div class="field full">
+            <label>Keperluan</label>
+            <textarea id="t_keperluan" placeholder="Keperluan perjalanan dinas"></textarea>
+          </div>
+        </div>
+
+        <!-- HOTEL FIELDS (mengikuti Form Permohonan Reservasi Hotel) -->
+        <div class="jenis-fields" id="fields_hotel">
+          <div class="field">
+            <label>Lokasi Pemesanan</label>
+            <select id="h_lokasi" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+          </div>
+          <div class="field">
+            <label>Nama Hotel</label>
+            <input type="text" id="h_namahotel" placeholder="Contoh: Hotel Aston Balikpapan">
+          </div>
+          <div class="field">
+            <label>Tanggal Check-in</label>
+            <input type="date" id="h_checkin">
+          </div>
+          <div class="field">
+            <label>Tanggal Check-out</label>
+            <input type="date" id="h_checkout">
+          </div>
+          <div class="field full">
+            <label>Pilihan Tipe Kamar</label>
+            <div class="radio-group">
+              <label><input type="radio" name="h_tipe" value="Standard Room" checked> Standard Room</label>
+              <label><input type="radio" name="h_tipe" value="Deluxe Room"> Deluxe Room</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOBIL FIELDS -->
+        <div class="jenis-fields" id="fields_mobil">
+          <div class="field">
+            <label>Dari</label>
+            <select id="m_dari" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+          </div>
+          <div class="field">
+            <label>Tujuan</label>
+            <select id="m_tujuan" class="loc-dropdown"><option value="">-- Pilih Lokasi --</option></select>
+          </div>
+          <div class="field">
+            <label>Tanggal</label>
+            <input type="date" id="m_tanggal">
+          </div>
+          <div class="field">
+            <label>Jam Penjemputan</label>
+            <input type="time" id="m_jam">
+          </div>
+          <div class="field">
+            <label>Jenis Mobil</label>
+            <select id="m_jenismobil" class="vehicle-dropdown"><option value="">-- Pilih Kendaraan --</option></select>
+          </div>
+          <div class="field full">
+            <label>Keperluan</label>
+            <textarea id="m_keperluan" placeholder="Keperluan perjalanan"></textarea>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Catatan Tambahan</label>
+          <textarea id="f_catatan" placeholder="Informasi tambahan jika ada"></textarea>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button type="reset" class="btn btn-muted" onclick="toggleJenisFields()">Reset</button>
+        <button type="submit" class="btn btn-primary">Kirim Permintaan</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -645,9 +702,50 @@
     document.getElementById('viewHO').classList.toggle('active', role==='ho');
     document.getElementById('btnSiteRole').classList.toggle('active', role==='site');
     document.getElementById('btnHORole').classList.toggle('active', role==='ho');
+    document.getElementById('btnTambahPermintaan').style.display = role==='site' ? 'inline-flex' : 'none';
     if(role==='ho') renderHOTable();
     else renderSiteTable();
   }
+
+  // ===== Modal Form Permintaan Pemesanan =====
+  function openOrderModal(){
+    document.getElementById('orderModalOverlay').classList.add('show');
+  }
+  function closeOrderModal(){
+    document.getElementById('orderModalOverlay').classList.remove('show');
+  }
+
+  // Ukur tinggi tiap panel yang di-freeze (sticky) dan atur posisi "top" panel
+  // serta header tabel (thead) di bawahnya secara presisi, supaya freeze-nya
+  // menempel pas berurutan: header > (stat cards, khusus HO) > judul+filter > kolom tabel.
+  function applyTheadSticky(wrapId, topPx){
+    document.querySelectorAll('#'+wrapId+' thead th').forEach(th=>{
+      th.style.position = 'sticky';
+      th.style.top = topPx + 'px';
+      th.style.zIndex = 60;
+    });
+  }
+
+  function updateStickyOffsets(){
+    const headerEl = document.querySelector('header');
+    const headerH = headerEl ? headerEl.offsetHeight : 80;
+    document.documentElement.style.setProperty('--header-h', headerH + 'px');
+
+    // Site: topbar (freeze-panel) langsung di bawah header, lalu thead di bawah topbar.
+    const siteTopbar = document.getElementById('siteListTopbar');
+    const siteTopbarH = siteTopbar ? siteTopbar.offsetHeight : 0;
+    applyTheadSticky('siteTableWrap', headerH + siteTopbarH);
+
+    // HO: stat cards (freeze-panel) di bawah header, lalu topbar (freeze-panel-2), lalu thead.
+    const statCards = document.getElementById('statCards');
+    const statCardsH = statCards ? statCards.offsetHeight : 0;
+    const hoTopbar = document.getElementById('hoListTopbar');
+    const hoTopbarTop = headerH + statCardsH;
+    if(hoTopbar) hoTopbar.style.top = hoTopbarTop + 'px';
+    const hoTopbarH = hoTopbar ? hoTopbar.offsetHeight : 0;
+    applyTheadSticky('hoTableWrap', hoTopbarTop + hoTopbarH);
+  }
+  window.addEventListener('resize', updateStickyOffsets);
 
   function toggleJenisFields(){
     const val = document.getElementById('f_jenis').value;
@@ -768,6 +866,7 @@
 
     if(result.ok){
       showToast('Permintaan berhasil dikirim!');
+      closeOrderModal();
       await loadOrdersFromSheet(true);
     } else {
       showToast('Gagal mengirim ke Google Sheet: ' + result.error, true);
@@ -809,6 +908,7 @@
     const list = filteredOrders('site');
     if(list.length===0){
       wrap.innerHTML = '<div class="empty-state">Belum ada pesanan.</div>';
+      updateStickyOffsets();
       return;
     }
     let html = `<table><thead><tr>
@@ -834,6 +934,7 @@
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;
+    updateStickyOffsets();
   }
 
   function renderStats(){
@@ -857,6 +958,7 @@
     const list = filteredOrders('ho');
     if(list.length===0){
       wrap.innerHTML = '<div class="empty-state">Belum ada pesanan.</div>';
+      updateStickyOffsets();
       return;
     }
     let html = `<table><thead><tr>
@@ -913,6 +1015,7 @@
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;
+    updateStickyOffsets();
   }
 
   async function updateStatus(id, status){
@@ -1105,21 +1208,12 @@
     doc.save(fname);
   }
 
-  // Ukur tinggi header asli supaya panel yang di-freeze (form Site / stat cards HO)
-  // menempel pas di bawah header, bukan pakai angka perkiraan yang bisa meleset.
-  function updateHeaderHeightVar(){
-    const headerEl = document.querySelector('header');
-    if(headerEl){
-      document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight + 'px');
-    }
-  }
-  window.addEventListener('resize', updateHeaderHeightVar);
-
   // init
+  document.getElementById('btnTambahPermintaan').style.display = 'inline-flex'; // default: role Site aktif
   toggleJenisFields();
   renderSiteTable();
   renderHOTable();
-  updateHeaderHeightVar();
+  updateStickyOffsets();
   loadOrdersFromSheet(); // muat data terkini dari Google Sheet saat halaman dibuka
   loadLocations(); // muat daftar lokasi (dropdown Dari/Tujuan/Lokasi) dari sheet "F"
   loadVehicles(); // muat daftar jenis kendaraan (dropdown Jenis Mobil) dari sheet "F" kolom B
