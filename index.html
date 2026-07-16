@@ -751,7 +751,17 @@
   function toggleJenisFields(){
     const val = document.getElementById('f_jenis').value;
     ['tiket','hotel','mobil'].forEach(j=>{
-      document.getElementById('fields_'+j).classList.toggle('show', j===val);
+      const group = document.getElementById('fields_'+j);
+      const isActive = j===val;
+      group.classList.toggle('show', isActive);
+      // Field yang disembunyikan (display:none) tetap dianggap "required" oleh
+      // browser saat validasi form, sehingga tombol Kirim Permintaan seolah tidak
+      // bereaksi (validasi gagal di field tersembunyi yang tidak bisa difokuskan).
+      // Solusinya: nonaktifkan field pada grup yang tidak aktif supaya dikecualikan
+      // dari validasi, lalu aktifkan lagi saat grupnya dipilih.
+      group.querySelectorAll('input,select,textarea').forEach(el=>{
+        el.disabled = !isActive;
+      });
     });
   }
 
