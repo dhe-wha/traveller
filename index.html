@@ -440,7 +440,7 @@
         <div class="jenis-fields" id="fields_tiket">
           <div class="field">
             <label>Nama Penerbangan *</label>
-            <input type="text" id="t_namapenerbangan" placeholder="Contoh: Garuda Indonesia" required>
+            <select id="t_namapenerbangan" class="airline-dropdown" required><option value="">-- Pilih Maskapai --</option></select>
           </div>
           <div class="field">
             <label>Dari *</label>
@@ -695,6 +695,28 @@
       }
     } catch(err){
       console.error('Gagal memuat daftar kendaraan:', err);
+    }
+  }
+
+  // Ambil daftar maskapai dari sheet "F" kolom C (lewat Apps Script) dan isi ke dropdown Nama Penerbangan.
+  async function loadAirlines(){
+    const url = getGasUrl();
+    if(!url) return;
+    try {
+      const sep = url.includes('?') ? '&' : '?';
+      const res = await fetch(url + sep + 'action=airlines');
+      const json = await res.json();
+      if(json && json.result === 'success' && Array.isArray(json.data)){
+        const optionsHtml = '<option value="">-- Pilih Maskapai --</option>' +
+          json.data.map(a => `<option value="${a}">${a}</option>`).join('');
+        document.querySelectorAll('.airline-dropdown').forEach(sel => {
+          const current = sel.value;
+          sel.innerHTML = optionsHtml;
+          if(current) sel.value = current;
+        });
+      }
+    } catch(err){
+      console.error('Gagal memuat daftar maskapai:', err);
     }
   }
 
@@ -1270,6 +1292,7 @@
   loadOrdersFromSheet(); // muat data terkini dari Google Sheet saat halaman dibuka
   loadLocations(); // muat daftar lokasi (dropdown Dari/Tujuan/Lokasi) dari sheet "F"
   loadVehicles(); // muat daftar jenis kendaraan (dropdown Jenis Mobil) dari sheet "F" kolom B
+  loadAirlines(); // muat daftar maskapai (dropdown Nama Penerbangan) dari sheet "F" kolom C
 </script>
 
 </body>
