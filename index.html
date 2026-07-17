@@ -1040,7 +1040,10 @@
       <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Tgl Berangkat</th><th>Detail</th><th>Catatan</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
       </tr></thead><tbody>`;
     list.forEach(o=>{
-      const locked = !!(o.pemesananUrl || o.tiketVoucherUrl);
+      // Status hanya dikunci kalau file SUDAH ada DAN statusnya sudah "Selesai" —
+      // supaya HO masih bisa ganti status (mis. Menunggu -> Diproses) walau file
+      // proses (Pemesanan/Tiket-Voucher) sudah diupload duluan, tanpa status gantung.
+      const locked = o.status === 'Selesai' && !!(o.pemesananUrl || o.tiketVoucherUrl);
       const statusCell = locked
         ? `<span class="status-pill status-${o.status}">${o.status}</span>
            <div class="detail-line">Status terkunci (sudah ada file)</div>`
