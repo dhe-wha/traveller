@@ -1040,13 +1040,15 @@
       <th>Tanggal Request</th><th>Departemen/Site</th><th>Pemesan</th><th>Jenis</th><th>Tgl Berangkat</th><th>Detail</th><th>Catatan</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
       </tr></thead><tbody>`;
     list.forEach(o=>{
-      // Status hanya dikunci kalau file SUDAH ada DAN statusnya sudah "Selesai" —
-      // supaya HO masih bisa ganti status (mis. Menunggu -> Diproses) walau file
-      // proses (Pemesanan/Tiket-Voucher) sudah diupload duluan, tanpa status gantung.
-      const locked = o.status === 'Selesai' && !!(o.pemesananUrl || o.tiketVoucherUrl);
+      // Travel Mobil tidak punya file (Pemesanan/Tiket-Voucher sudah dihapus dari
+      // alurnya), jadi cukup dikunci begitu status dipilih "Selesai". Tiket/Hotel
+      // tetap dikunci berdasar status "Selesai" + Tiket/Voucher sudah diupload.
+      const locked = o.jenis === 'mobil'
+        ? o.status === 'Selesai'
+        : (o.status === 'Selesai' && !!(o.pemesananUrl || o.tiketVoucherUrl));
       const statusCell = locked
         ? `<span class="status-pill status-${o.status}">${o.status}</span>
-           <div class="detail-line">Status terkunci (sudah ada file)</div>`
+           <div class="detail-line">${o.jenis === 'mobil' ? 'Status ditutup (Selesai)' : 'Status terkunci (sudah ada file)'}</div>`
         : `<span class="status-pill status-${o.status}">${o.status}</span><br>
            <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
              <option value="Menunggu" ${o.status==='Menunggu'?'selected':''}>Menunggu</option>
@@ -1062,10 +1064,9 @@
           ? `<a href="${o.tiketVoucherUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Tiket/Voucher</a>`
           : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'tiketvoucher')">Upload Tiket/Voucher</button>`);
 
-      // Kalau Pemesanan & Tiket/Voucher sudah lengkap diupload, tombol Unduh PDF
-      // dan Hapus tidak perlu tampil lagi (dokumen resminya sudah ada di Drive).
-      // Untuk Travel Mobil, cukup Pemesanan saja (karena tidak ada Tiket/Voucher).
-      const fullyUploaded = o.jenis === 'mobil' ? !!o.pemesananUrl : !!(o.pemesananUrl && o.tiketVoucherUrl);
+      // Kalau sudah "selesai" (Mobil) atau Tiket/Voucher sudah diupload (Tiket/Hotel),
+      // tombol Unduh PDF dan Hapus tidak perlu tampil lagi.
+      const fullyUploaded = o.jenis === 'mobil' ? (o.status === 'Selesai') : !!(o.pemesananUrl && o.tiketVoucherUrl);
       const pdfAndDeleteCell = fullyUploaded ? '' : `
           <button class="btn btn-sm btn-info" onclick="downloadPDF(${o.id})">Unduh PDF</button>
           <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">Hapus</button>`;
