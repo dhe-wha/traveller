@@ -1064,11 +1064,11 @@
           ? `<a href="${o.tiketVoucherUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Tiket/Voucher</a>`
           : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'tiketvoucher')">Upload Tiket/Voucher</button>`);
 
-      // Kalau sudah "selesai" (Mobil) atau Tiket/Voucher sudah diupload (Tiket/Hotel),
-      // tombol Hapus tidak perlu tampil lagi.
+      // Kalau statusnya sudah terkunci (Mobil: Selesai; Tiket/Hotel: Selesai + Tiket/
+      // Voucher sudah diupload), tombol Hapus tidak perlu tampil lagi.
       // Tombol "Unduh PDF" sengaja tidak ditampilkan di tab Travel HO — preview PDF
       // cukup diakses dari tab Site (Pemesan) saja.
-      const fullyUploaded = o.jenis === 'mobil' ? (o.status === 'Selesai') : !!(o.pemesananUrl && o.tiketVoucherUrl);
+      const fullyUploaded = locked;
       const pdfAndDeleteCell = fullyUploaded ? '' : `
           <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">Hapus</button>`;
 
