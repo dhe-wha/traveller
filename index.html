@@ -1055,10 +1055,6 @@
              <option value="Ditolak" ${o.status==='Ditolak'?'selected':''}>Ditolak</option>
            </select>`;
 
-      const pemesananCell = o.pemesananUrl
-        ? `<a href="${o.pemesananUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-muted">Lihat Pemesanan</a>`
-        : `<button class="btn btn-sm btn-warn" onclick="promptUpload(${o.id},'pemesanan')">Upload Pemesanan</button>`;
-
       // Travel Mobil tidak butuh Tiket/Voucher (tidak ada tiket untuk mobil), jadi tombolnya disembunyikan.
       const tiketCell = o.jenis === 'mobil'
         ? ''
@@ -1086,7 +1082,6 @@
         <td>${statusCell}</td>
         <td class="action-cell">
           ${pdfAndDeleteCell}
-          ${pemesananCell}
           ${tiketCell}
         </td>
       </tr>`;
